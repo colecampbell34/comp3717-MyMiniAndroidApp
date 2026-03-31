@@ -1,5 +1,6 @@
 package com.bcit.myminiandroidapp.appui
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -13,10 +14,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bcit.myminiandroidapp.data.LocalAsset
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun PortfolioScreen(state: PortfolioState) {
+    // Calculate total portfolio value combining Room Data with API Data
+    val totalValue = state.assets.sumOf { asset ->
+        val currentPrice = state.marketPrices[asset.symbol] ?: 0.0
+        currentPrice * asset.quantity
+    }
+
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text("My Portfolio", fontSize = 30.sp, fontWeight = FontWeight.Bold)
+
+        // Display calculated live total
+        Text(
+            text = "Total Value: $${String.format("%.2f", totalValue)}",
+            fontSize = 20.sp,
+            color = MaterialTheme.colorScheme.primary
+        )
+
         Spacer(modifier = Modifier.height(16.dp))
 
         // Single Source of Truth: Passing an event callback down to the stateless component
@@ -26,12 +42,15 @@ fun PortfolioScreen(state: PortfolioState) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // LazyColumn for efficient list rendering
         LazyColumn {
             items(state.assets.size) { index ->
                 val asset = state.assets[index]
+                // Look up live price, default to 0.0 if API hasn't loaded or symbol is wrong
+                val livePrice = state.marketPrices[asset.symbol] ?: 0.0
+
                 AssetCard(
                     asset = asset,
+                    currentPrice = livePrice,
                     onDelete = { state.removeAsset(asset) }
                 )
             }
@@ -49,7 +68,7 @@ fun AddAssetForm(onAdd: (String, String) -> Unit) {
         OutlinedTextField(
             value = symbol,
             onValueChange = { symbol = it },
-            label = { Text("Asset Symbol (e.g., BTC, AAPL)") },
+            label = { Text("Asset Symbol (e.g., BTC, ETH)") },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -76,8 +95,11 @@ fun AddAssetForm(onAdd: (String, String) -> Unit) {
 }
 
 // Stateless Composable
+@SuppressLint("DefaultLocale")
 @Composable
-fun AssetCard(asset: LocalAsset, onDelete: () -> Unit) {
+fun AssetCard(asset: LocalAsset, currentPrice: Double, onDelete: () -> Unit) {
+    val totalAssetValue = asset.quantity * currentPrice
+
     Card(
         modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -89,7 +111,12 @@ fun AssetCard(asset: LocalAsset, onDelete: () -> Unit) {
         ) {
             Column {
                 Text(text = asset.symbol, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                Text(text = "Shares/Coins: ${asset.quantity}", fontSize = 16.sp)
+                Text(text = "Holdings: ${asset.quantity}", fontSize = 16.sp)
+                Text(
+                    text = "Value: $${String.format("%.2f", totalAssetValue)}",
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.secondary
+                )
             }
 
             // Callback execution

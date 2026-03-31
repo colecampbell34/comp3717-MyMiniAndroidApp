@@ -6,6 +6,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -21,6 +22,11 @@ data class NavItem(val icon: ImageVector, val navRoute: String, val title: Strin
 fun MainContent(portfolioState: PortfolioState) {
     val navController = rememberNavController()
 
+    // This triggers the API call exactly once when the app launches
+    LaunchedEffect(Unit) {
+        portfolioState.fetchMarketPrices()
+    }
+
     Scaffold(
         bottomBar = { MyBottomNav(navController) }
     ) { padding ->
@@ -33,7 +39,8 @@ fun MainContent(portfolioState: PortfolioState) {
                 PortfolioScreen(portfolioState)
             }
             composable(route = "market") {
-                MarketScreen()
+                // NEW: Pass the state to the MarketScreen
+                MarketScreen(portfolioState)
             }
         }
     }
