@@ -2,8 +2,8 @@ package com.bcit.myminiandroidapp.appui
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,12 +19,12 @@ import androidx.navigation.compose.rememberNavController
 data class NavItem(val icon: ImageVector, val navRoute: String, val title: String)
 
 @Composable
-fun MainContent(portfolioState: PortfolioState) {
+fun MainContent(f1State: F1State) {
     val navController = rememberNavController()
 
-    // This triggers the API call exactly once when the app launches
+    // Fetch API data when app opens
     LaunchedEffect(Unit) {
-        portfolioState.fetchMarketPrices()
+        f1State.fetchApiData()
     }
 
     Scaffold(
@@ -32,15 +32,14 @@ fun MainContent(portfolioState: PortfolioState) {
     ) { padding ->
         NavHost(
             navController = navController,
-            startDestination = "portfolio",
+            startDestination = "races",
             modifier = Modifier.padding(padding)
         ) {
-            composable(route = "portfolio") {
-                PortfolioScreen(portfolioState)
+            composable(route = "races") {
+                RacesScreen(f1State)
             }
-            composable(route = "market") {
-                // NEW: Pass the state to the MarketScreen
-                MarketScreen(portfolioState)
+            composable(route = "drivers") {
+                DriversScreen(f1State)
             }
         }
     }
@@ -49,8 +48,8 @@ fun MainContent(portfolioState: PortfolioState) {
 @Composable
 fun MyBottomNav(navController: NavController) {
     val navItems = listOf(
-        NavItem(Icons.Default.Home, navRoute = "portfolio", title = "Portfolio"),
-        NavItem(Icons.Default.ShoppingCart, navRoute = "market", title = "Market")
+        NavItem(Icons.Default.DateRange, navRoute = "races", title = "Races"),
+        NavItem(Icons.Default.Person, navRoute = "drivers", title = "Drivers")
     )
 
     NavigationBar {

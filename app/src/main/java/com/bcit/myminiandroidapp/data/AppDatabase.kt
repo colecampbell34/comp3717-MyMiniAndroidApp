@@ -5,16 +5,16 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [LocalAsset::class], version = 1)
+@Database(entities =[LocalDriver::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun assetDao(): AssetDao
+    abstract fun driverDao(): DriverDao
 }
 
 object MyDatabase {
     fun getDatabase(context: Context): AppDatabase {
         return Room.databaseBuilder(
             context,
-            AppDatabase::class.java, "portfolio_db"
+            AppDatabase::class.java, "f1_database"
         )
             .allowMainThreadQueries()
             .build()
