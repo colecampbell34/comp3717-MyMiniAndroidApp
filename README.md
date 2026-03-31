@@ -28,9 +28,15 @@ This project strictly adheres to **Clean Architecture** principles and **State H
 1. **Portfolio Screen:** Add/remove assets (e.g., BTC, ETH) and view your total calculated portfolio value based on live prices.
 2. **Market Screen:** View a live feed of current asset prices fetched from the web.
 
-## Getting Started
+## API Reference
+This app uses theCoinCap API (v2) to fetch real-time asset pricing.
 
-### Prerequisites
+Endpoint used: GET https://api.coincap.io/v2/assets
+
+No API key is required.
+
+## Prerequisites
 * Android Studio (Latest version recommended)
 * Minimum SDK: API 24 (or as configured in your `build.gradle.kts`)
 * An active internet connection (to fetch API data)
+#
