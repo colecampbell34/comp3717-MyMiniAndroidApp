@@ -3,45 +3,25 @@ package com.bcit.myminiandroidapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.bcit.myminiandroidapp.ui.theme.MyMiniAndroidAppTheme
+import androidx.compose.runtime.remember
+import com.bcit.myminiandroidapp.data.AssetRepository
+import com.bcit.myminiandroidapp.data.MyDatabase
+import com.bcit.myminiandroidapp.appui.MainContent
+import com.bcit.myminiandroidapp.appui.PortfolioState
 
 class MainActivity : ComponentActivity() {
+
+    private val db by lazy { MyDatabase.getDatabase(applicationContext) }
+    private val assetRepo by lazy { AssetRepository(db.assetDao()) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
-            MyMiniAndroidAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
+            // Injecting the repository into our state holder
+            val portfolioState = remember { PortfolioState(assetRepo) }
+
+            // Pass state holder to UI
+            MainContent(portfolioState)
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MyMiniAndroidAppTheme {
-        Greeting("Android")
     }
 }
