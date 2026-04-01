@@ -5,68 +5,87 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.toMutableStateList
 import com.bcit.myminiandroidapp.data.DriverRepository
 import com.bcit.myminiandroidapp.data.LocalDriver
+import com.bcit.myminiandroidapp.data.remote.DriverPosition
+import com.bcit.myminiandroidapp.data.remote.F1ApiRepository
 import com.bcit.myminiandroidapp.data.remote.F1Driver
 import com.bcit.myminiandroidapp.data.remote.F1Session
-import com.bcit.myminiandroidapp.data.remote.RetrofitInstance
 
-class F1State(private val repository: DriverRepository) {
-    // Room DB State
-    var favoriteDrivers = repository.getFavorites().toMutableStateList()
-
-    // API State
+class F1State(
+    private val localRepository: DriverRepository,
+    private val remoteRepository: F1ApiRepository
+) {
+    var selectedYear = mutableStateOf(2025)
+    var favoriteDrivers = localRepository.getFavorites().toMutableStateList()
     var apiSessions = mutableStateListOf<F1Session>()
     var apiDrivers = mutableStateListOf<F1Driver>()
     var isLoading = mutableStateOf(false)
-    var errorMessage = mutableStateOf<String?>(null) // Added error tracking
+    var errorMessage = mutableStateOf<String?>(null)
 
-    // Toggle Room DB Favorite
+    var sessionPositions = mutableStateListOf<DriverPosition>()
+    var isDetailsLoading = mutableStateOf(false)
+
     fun toggleFavorite(driver: F1Driver) {
-        val dNum = driver.driverNumber ?: return // Can't save if the API gave no driver number
-
-        val localDriver = LocalDriver(
-            driverNumber = dNum,
-            fullName = driver.fullName ?: "Unknown",
-            teamName = driver.teamName ?: "Unknown"
-        )
-
+        val dNum = driver.driverNumber ?: return
+        val localDriver = LocalDriver(dNum, driver.fullName ?: "N/A", driver.teamName ?: "N/A")
         val isFavorite = favoriteDrivers.any { it.driverNumber == dNum }
 
         if (isFavorite) {
-            repository.removeFavorite(localDriver)
+            localRepository.removeFavorite(localDriver)
         } else {
-            repository.addFavorite(localDriver)
+            localRepository.addFavorite(localDriver)
         }
         refreshFavorites()
     }
 
     private fun refreshFavorites() {
-        favoriteDrivers.apply {
-            clear()
-            addAll(repository.getFavorites())
+        favoriteDrivers.apply { clear(); addAll(localRepository.getFavorites()) }
+    }
+
+    suspend fun changeYear(newYear: Int) {
+        if (newYear != selectedYear.value) {
+            selectedYear.value = newYear
+            fetchApiData()
         }
     }
 
-    // Fetch API Data
     suspend fun fetchApiData() {
         isLoading.value = true
         errorMessage.value = null
         try {
-            // Fetch Sessions
-            val sessions = RetrofitInstance.api.getSessions()
+            val sessions = remoteRepository.getSessions(selectedYear.value)
             apiSessions.clear()
-            // Reversing it puts the most recent races at the top, taking 30 keeps the list manageable
-            apiSessions.addAll(sessions.reversed().take(30))
+            val filteredSessions = sessions.filter { it.sessionName == "Race" }
+            apiSessions.addAll(filteredSessions.reversed())
 
-            // Fetch Drivers
-            val drivers = RetrofitInstance.api.getDrivers()
+            val drivers = remoteRepository.getDrivers()
             apiDrivers.clear()
             apiDrivers.addAll(drivers)
-
         } catch (e: Exception) {
             e.printStackTrace()
-            errorMessage.value = "Error: ${e.message}"
+            errorMessage.value = "Could not load F1 data for ${selectedYear.value}. Please check your connection."
         } finally {
             isLoading.value = false
+        }
+    }
+
+    suspend fun fetchSessionPositions(sessionKey: Int) {
+        isDetailsLoading.value = true
+        errorMessage.value = null
+        try {
+            val rawPositions = remoteRepository.getSessionPositions(sessionKey)
+
+            val finalPositions = rawPositions
+                .groupBy { it.driverNumber } // Group all position updates by driver
+                .mapNotNull { (_, updates) -> updates.maxByOrNull { it.date ?: "" } } // For each driver, find the latest update
+                .sortedBy { it.position } // Sort the final list by position
+
+            sessionPositions.clear()
+            sessionPositions.addAll(finalPositions)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            errorMessage.value = "An unexpected error occurred."
+        } finally {
+            isDetailsLoading.value = false
         }
     }
 }
