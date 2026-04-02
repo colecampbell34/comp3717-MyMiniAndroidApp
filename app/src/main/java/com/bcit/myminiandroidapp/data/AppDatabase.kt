@@ -16,7 +16,6 @@ object MyDatabase {
             context,
             AppDatabase::class.java, "f1_database"
         )
-            .allowMainThreadQueries()
             .build()
     }
 }

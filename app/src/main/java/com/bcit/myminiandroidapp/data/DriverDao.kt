@@ -9,11 +9,11 @@ import androidx.room.Query
 @Dao
 interface DriverDao {
     @Query("SELECT * FROM favorite_drivers")
-    fun getAllFavorites(): List<LocalDriver>
+    suspend fun getAllFavorites(): List<LocalDriver>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun addFavorite(driver: LocalDriver)
+    suspend fun addFavorite(driver: LocalDriver)
 
     @Delete
-    fun removeFavorite(driver: LocalDriver)
+    suspend fun removeFavorite(driver: LocalDriver)
 }

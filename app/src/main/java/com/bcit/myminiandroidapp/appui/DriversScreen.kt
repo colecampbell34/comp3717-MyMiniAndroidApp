@@ -12,13 +12,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.background
+import coil3.compose.AsyncImage
+import kotlinx.coroutines.launch
+import com.bcit.myminiandroidapp.R
 import com.bcit.myminiandroidapp.data.remote.F1Driver
 
 @Composable
 fun DriversScreen(state: F1State) {
+    val coroutineScope = rememberCoroutineScope()
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text("Current Grid", fontSize = 30.sp, fontWeight = FontWeight.Bold)
-        Text("Tap the heart to save to favorites", fontSize = 14.sp, color = MaterialTheme.colorScheme.secondary)
+        Text(stringResource(id = R.string.drivers_title), fontSize = 30.sp, fontWeight = FontWeight.Bold)
+        Text(stringResource(id = R.string.tap_heart), fontSize = 14.sp, color = MaterialTheme.colorScheme.secondary)
         Spacer(modifier = Modifier.height(16.dp))
 
         if (state.isLoading.value) {
@@ -40,7 +49,7 @@ fun DriversScreen(state: F1State) {
                     DriverCard(
                         driver = driver,
                         isFavorite = isFavorite,
-                        onToggleFavorite = { state.toggleFavorite(driver) }
+                        onToggleFavorite = { coroutineScope.launch { state.toggleFavorite(driver) } }
                     )
                 }
             }
@@ -59,18 +68,31 @@ fun DriverCard(driver: F1Driver, isFavorite: Boolean, onToggleFavorite: () -> Un
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
-                // Safely render potentially null strings
-                Text(
-                    text = "${driver.driverNumber ?: "N/A"} | ${driver.fullName ?: "Unknown Driver"}",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = driver.teamName ?: "Unknown Team",
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.secondary
-                )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (driver.headshotUrl != null) {
+                    AsyncImage(
+                        model = driver.headshotUrl,
+                        contentDescription = "Driver Headshot",
+                        modifier = Modifier
+                            .size(50.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                }
+                Column {
+                    // Safely render potentially null strings
+                    Text(
+                        text = "${driver.driverNumber ?: "N/A"} | ${driver.fullName ?: "Unknown Driver"}",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = driver.teamName ?: "Unknown Team",
+                        fontSize = 16.sp,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
             }
 
             IconButton(onClick = onToggleFavorite) {

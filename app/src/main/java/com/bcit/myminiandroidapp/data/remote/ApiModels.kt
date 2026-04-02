@@ -17,7 +17,8 @@ data class F1Session(
 data class F1Driver(
     @SerializedName("driver_number") val driverNumber: Int?,
     @SerializedName("full_name") val fullName: String?,
-    @SerializedName("team_name") val teamName: String?
+    @SerializedName("team_name") val teamName: String?,
+    @SerializedName("headshot_url") val headshotUrl: String?
 )
 
 // Model for the session leaderboard/position data

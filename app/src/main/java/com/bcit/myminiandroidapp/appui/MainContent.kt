@@ -17,8 +17,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.compose.ui.res.stringResource
+import com.bcit.myminiandroidapp.R
 
-data class NavItem(val icon: ImageVector, val navRoute: String, val title: String)
+data class NavItem(val icon: ImageVector, val navRoute: String, val titleRes: Int)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,9 +72,9 @@ fun MainContent(f1State: F1State) {
 fun MyBottomNav(navController: androidx.navigation.NavController) {
     // NEW: Added "Favorites" to the list
     val navItems = listOf(
-        NavItem(Icons.Default.DateRange, navRoute = "races", title = "Races"),
-        NavItem(Icons.Default.Person, navRoute = "drivers", title = "Drivers"),
-        NavItem(Icons.Filled.Favorite, navRoute = "favorites", title = "Favorites")
+        NavItem(Icons.Default.DateRange, navRoute = "races", titleRes = R.string.nav_races),
+        NavItem(Icons.Default.Person, navRoute = "drivers", titleRes = R.string.nav_drivers),
+        NavItem(Icons.Filled.Favorite, navRoute = "favorites", titleRes = R.string.nav_favorites)
     )
 
     NavigationBar {
@@ -83,12 +86,15 @@ fun MyBottomNav(navController: androidx.navigation.NavController) {
                 selected = currentRoute == item.navRoute,
                 onClick = {
                     navController.navigate(item.navRoute) {
-                        // Avoid multiple copies of the same destination when re-selecting the same item
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
                         launchSingleTop = true
+                        restoreState = true
                     }
                 },
-                icon = { Icon(item.icon, contentDescription = item.title) },
-                label = { Text(item.title) }
+                icon = { Icon(item.icon, contentDescription = stringResource(item.titleRes)) },
+                label = { Text(stringResource(item.titleRes)) }
             )
         }
     }

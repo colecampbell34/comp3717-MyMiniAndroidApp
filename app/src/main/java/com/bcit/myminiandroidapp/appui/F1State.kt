@@ -15,7 +15,7 @@ class F1State(
     private val remoteRepository: F1ApiRepository
 ) {
     var selectedYear = mutableStateOf(2025)
-    var favoriteDrivers = localRepository.getFavorites().toMutableStateList()
+    var favoriteDrivers = mutableStateListOf<LocalDriver>()
     var apiSessions = mutableStateListOf<F1Session>()
     var apiDrivers = mutableStateListOf<F1Driver>()
     var isLoading = mutableStateOf(false)
@@ -24,7 +24,7 @@ class F1State(
     var sessionPositions = mutableStateListOf<DriverPosition>()
     var isDetailsLoading = mutableStateOf(false)
 
-    fun toggleFavorite(driver: F1Driver) {
+    suspend fun toggleFavorite(driver: F1Driver) {
         val dNum = driver.driverNumber ?: return
         val localDriver = LocalDriver(dNum, driver.fullName ?: "N/A", driver.teamName ?: "N/A")
         val isFavorite = favoriteDrivers.any { it.driverNumber == dNum }
@@ -37,8 +37,9 @@ class F1State(
         refreshFavorites()
     }
 
-    private fun refreshFavorites() {
-        favoriteDrivers.apply { clear(); addAll(localRepository.getFavorites()) }
+    suspend fun refreshFavorites() {
+        val favs = localRepository.getFavorites()
+        favoriteDrivers.apply { clear(); addAll(favs) }
     }
 
     suspend fun changeYear(newYear: Int) {
@@ -51,6 +52,7 @@ class F1State(
     suspend fun fetchApiData() {
         isLoading.value = true
         errorMessage.value = null
+        refreshFavorites()
         try {
             val sessions = remoteRepository.getSessions(selectedYear.value)
             apiSessions.clear()

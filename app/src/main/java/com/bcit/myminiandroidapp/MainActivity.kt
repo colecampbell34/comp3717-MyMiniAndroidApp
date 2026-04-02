@@ -30,4 +30,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-// TODO could make ui improvements but everything is working fine

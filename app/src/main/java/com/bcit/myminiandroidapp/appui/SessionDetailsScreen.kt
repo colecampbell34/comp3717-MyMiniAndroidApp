@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil3.compose.AsyncImage
 import com.bcit.myminiandroidapp.data.remote.DriverPosition
 import com.bcit.myminiandroidapp.data.remote.F1Session
 import java.time.LocalDate
@@ -72,7 +73,12 @@ fun SessionDetailsScreen(state: F1State, sessionKey: Int?, navController: NavCon
                     items(state.sessionPositions.size) { index ->
                         val positionData = state.sessionPositions[index]
                         val driverDetails = state.apiDrivers.find { it.driverNumber == positionData.driverNumber }
-                        PositionRow(position = positionData, driverName = driverDetails?.fullName, teamName = driverDetails?.teamName)
+                        PositionRow(
+                            position = positionData,
+                            driverName = driverDetails?.fullName,
+                            teamName = driverDetails?.teamName,
+                            headshotUrl = driverDetails?.headshotUrl
+                        )
                     }
                 }
             }
@@ -109,7 +115,7 @@ fun SessionInfoHeader(session: F1Session) {
 
 
 @Composable
-fun PositionRow(position: DriverPosition, driverName: String?, teamName: String?) {
+fun PositionRow(position: DriverPosition, driverName: String?, teamName: String?, headshotUrl: String?) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
@@ -134,6 +140,17 @@ fun PositionRow(position: DriverPosition, driverName: String?, teamName: String?
                 )
             }
             Spacer(modifier = Modifier.width(16.dp))
+            if (headshotUrl != null) {
+                AsyncImage(
+                    model = headshotUrl,
+                    contentDescription = "Driver Headshot",
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+            }
             Column {
                 Text(
                     text = driverName ?: "Unknown Driver",

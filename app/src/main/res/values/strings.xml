@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">MyMiniAndroidApp</string>
+    <string name="races_title">F1 Calendar</string>
+    <string name="drivers_title">Current Grid</string>
+    <string name="tap_heart">Tap the heart to save to favorites</string>
+    <string name="favorites_title">Favorite Drivers</string>
+    <string name="no_favorites">You haven\'t added any favorite drivers yet!</string>
+    <string name="no_results">No results available for this session.</string>
+    <string name="nav_races">Races</string>
+    <string name="nav_drivers">Drivers</string>
+    <string name="nav_favorites">Favorites</string>
 </resources>

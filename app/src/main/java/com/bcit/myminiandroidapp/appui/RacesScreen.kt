@@ -15,6 +15,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.compose.ui.res.stringResource
+import com.bcit.myminiandroidapp.R
 import com.bcit.myminiandroidapp.data.remote.F1Session
 import kotlinx.coroutines.launch
 
@@ -23,7 +25,7 @@ fun RacesScreen(state: F1State, navController: NavController) {
     val coroutineScope = rememberCoroutineScope()
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text("F1 Calendar", fontSize = 30.sp, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.races_title), fontSize = 30.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(16.dp))
 
         YearSelector(
