@@ -2,7 +2,6 @@ package com.bcit.myminiandroidapp.data.remote
 
 import com.google.gson.annotations.SerializedName
 
-// Model for Race Sessions
 data class F1Session(
     @SerializedName("session_key") val sessionKey: Int?,
     @SerializedName("session_name") val sessionName: String?,
@@ -13,7 +12,6 @@ data class F1Session(
     @SerializedName("date_start") val dateStart: String?
 )
 
-// Model for Drivers
 data class F1Driver(
     @SerializedName("driver_number") val driverNumber: Int?,
     @SerializedName("full_name") val fullName: String?,
@@ -21,7 +19,6 @@ data class F1Driver(
     @SerializedName("headshot_url") val headshotUrl: String?
 )
 
-// Model for the session leaderboard/position data
 data class DriverPosition(
     @SerializedName("session_key") val sessionKey: Int?,
     @SerializedName("driver_number") val driverNumber: Int?,

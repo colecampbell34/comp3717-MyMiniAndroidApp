@@ -1,5 +1,7 @@
 package com.bcit.myminiandroidapp.appui
 
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.bcit.myminiandroidapp.data.remote.DriverPosition
@@ -24,12 +27,16 @@ import java.time.format.FormatStyle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SessionDetailsScreen(state: F1State, sessionKey: Int?, navController: NavController) {
-    val session = state.apiSessions.find { it.sessionKey == sessionKey }
+fun SessionDetailsScreen(sessionKey: Int?, navController: NavController) {
+    val f1State: F1State = viewModel(
+        LocalActivity.current as ComponentActivity
+    )
+
+    val session = f1State.apiSessions.find { it.sessionKey == sessionKey }
 
     LaunchedEffect(sessionKey) {
         if (sessionKey != null) {
-            state.fetchSessionPositions(sessionKey)
+            f1State.fetchSessionPositions(sessionKey)
         }
     }
 
@@ -48,31 +55,35 @@ fun SessionDetailsScreen(state: F1State, sessionKey: Int?, navController: NavCon
             )
         }
     ) { padding ->
-        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(padding)) {
             session?.let { SessionInfoHeader(it) }
 
-            // Display loading or error states
-            if (state.isDetailsLoading.value) {
+            if (f1State.isDetailsLoading.value) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
-            } else if (state.errorMessage.value != null) {
+            } else if (f1State.errorMessage.value != null) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(state.errorMessage.value!!, color = MaterialTheme.colorScheme.error)
+                    Text(f1State.errorMessage.value!!, color = MaterialTheme.colorScheme.error)
                 }
-            } else if (state.sessionPositions.isEmpty()) {
+            } else if (f1State.sessionPositions.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No results available for this session.", color = MaterialTheme.colorScheme.secondary)
+                    Text(
+                        "No results available for this session.",
+                        color = MaterialTheme.colorScheme.secondary
+                    )
                 }
             } else {
-                // Display the leaderboard
                 LazyColumn(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    items(state.sessionPositions.size) { index ->
-                        val positionData = state.sessionPositions[index]
-                        val driverDetails = state.apiDrivers.find { it.driverNumber == positionData.driverNumber }
+                    items(f1State.sessionPositions.size) { index ->
+                        val positionData = f1State.sessionPositions[index]
+                        val driverDetails =
+                            f1State.apiDrivers.find { it.driverNumber == positionData.driverNumber }
                         PositionRow(
                             position = positionData,
                             driverName = driverDetails?.fullName,
@@ -94,7 +105,6 @@ fun SessionInfoHeader(session: F1Session) {
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(16.dp)
     ) {
-        // Simple date formatting
         val date = session.dateStart?.let {
             LocalDate.parse(it, DateTimeFormatter.ISO_DATE_TIME)
                 .format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))
@@ -115,7 +125,12 @@ fun SessionInfoHeader(session: F1Session) {
 
 
 @Composable
-fun PositionRow(position: DriverPosition, driverName: String?, teamName: String?, headshotUrl: String?) {
+fun PositionRow(
+    position: DriverPosition,
+    driverName: String?,
+    teamName: String?,
+    headshotUrl: String?
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)

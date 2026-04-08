@@ -1,5 +1,7 @@
 package com.bcit.myminiandroidapp.appui
 
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
@@ -19,13 +21,19 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.bcit.myminiandroidapp.R
 
 data class NavItem(val icon: ImageVector, val navRoute: String, val titleRes: Int)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainContent(f1State: F1State) {
+fun MainContent() {
+    val f1State: F1State = viewModel(
+        LocalActivity.current as ComponentActivity
+    )
+
     val navController = rememberNavController()
 
     LaunchedEffect(Unit) {
@@ -41,27 +49,20 @@ fun MainContent(f1State: F1State) {
             modifier = Modifier.padding(padding)
         ) {
             composable(route = "races") {
-                // Pass NavController so it can navigate from this screen
-                RacesScreen(state = f1State, navController = navController)
+                RacesScreen(navController = navController)
             }
             composable(route = "drivers") {
-                DriversScreen(state = f1State)
+                DriversScreen()
             }
-            // NEW: Route for the favorites screen
             composable(route = "favorites") {
-                FavoritesScreen(state = f1State)
+                FavoritesScreen()
             }
-            // NEW: Route for session details, which accepts an argument
             composable(
                 route = "session_details/{sessionKey}",
                 arguments = listOf(navArgument("sessionKey") { type = NavType.IntType })
             ) { backStackEntry ->
                 val sessionKey = backStackEntry.arguments?.getInt("sessionKey")
-                SessionDetailsScreen(
-                    state = f1State,
-                    sessionKey = sessionKey,
-                    navController = navController
-                )
+                SessionDetailsScreen(sessionKey = sessionKey, navController = navController)
             }
         }
     }
@@ -69,8 +70,7 @@ fun MainContent(f1State: F1State) {
 
 
 @Composable
-fun MyBottomNav(navController: androidx.navigation.NavController) {
-    // NEW: Added "Favorites" to the list
+fun MyBottomNav(navController: NavController) {
     val navItems = listOf(
         NavItem(Icons.Default.DateRange, navRoute = "races", titleRes = R.string.nav_races),
         NavItem(Icons.Default.Person, navRoute = "drivers", titleRes = R.string.nav_drivers),

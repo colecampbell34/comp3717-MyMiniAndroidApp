@@ -41,19 +41,28 @@ android {
 }
 
 dependencies {
+
+    // room
     implementation("androidx.room:room-ktx:2.6.1")
-    implementation(libs.androidx.navigation.runtime.ktx)
-    implementation(libs.androidx.navigation.compose)
     ksp("androidx.room:room-compiler:2.6.1")
+
+    // materials
     implementation("androidx.compose.material:material-icons-extended:1.7.0")
 
+    // navigation
+    implementation("androidx.navigation:navigation-compose:2.8.7")
+
+    // ktor
     implementation("io.ktor:ktor-client-android:2.3.11")
     implementation("io.ktor:ktor-client-content-negotiation:2.3.11")
     implementation("io.ktor:ktor-serialization-gson:2.3.11")
     
+    // coil
     implementation("io.coil-kt.coil3:coil-compose:3.0.3")
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.3")
 
+    implementation(libs.androidx.navigation.runtime.ktx)
+    implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
