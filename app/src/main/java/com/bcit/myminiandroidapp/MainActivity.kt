@@ -10,6 +10,9 @@ import com.bcit.myminiandroidapp.data.remote.F1ApiRepository
 import com.bcit.myminiandroidapp.appui.F1State
 import com.bcit.myminiandroidapp.appui.MainContent
 
+/**
+Cole Campbell A01412289.
+*/
 class MainActivity : ComponentActivity() {
     private val db by lazy { MyDatabase.getDatabase(applicationContext) }
     private val localRepo by lazy { DriverRepository(db.driverDao()) }
