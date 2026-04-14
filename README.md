@@ -8,9 +8,7 @@ A modern Android application built to track Formula 1 race sessions and drivers.
 * **Modern UI:** Built entirely with Jetpack Compose, featuring a Scaffold setup, Bottom Navigation Bar, and responsive Material 3 components.
 
 ## 🛠️ Tech Stack & Architecture
-This project strictly adheres to **Clean Architecture** principles and **State Hoisting** to ensure separation of concerns between the UI Layer and the Data Layer.
 * **Language:** Kotlin
 * **UI Toolkit:** Jetpack Compose
-* **Local Database:** Room (SQLite abstraction)
-* **Network/API:** Retrofit2 & Gson
-* **Architecture Patterns:** Repository Pattern, Single Source of Truth, Stateless/Stateful Composables.
+* **Local Database:** Room
+* **Network/API:** Ktor & Gson

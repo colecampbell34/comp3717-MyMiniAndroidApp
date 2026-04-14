@@ -16,7 +16,7 @@ class F1State(
     private val localRepository: DriverRepository,
     private val remoteRepository: F1ApiRepository
 ) : ViewModel() {
-    var selectedYear = mutableStateOf(2025)
+    var selectedYear = mutableStateOf(2026)
     var favoriteDrivers = mutableStateListOf<LocalDriver>()
     var apiSessions = mutableStateListOf<F1Session>()
     var apiDrivers = mutableStateListOf<F1Driver>()
